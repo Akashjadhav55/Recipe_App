@@ -1,8 +1,35 @@
 import {  Search } from 'lucide-react'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import RecipeCard from '../components/RecipeCard'
+import Skelatons from '../components/Skelatons';
+import { getRandomColor } from '../lib/utils';
+
+
 
 function HomePage() {
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRecipes = async(searchQuery) => {
+    setLoading(true);
+    setRecipes([])
+
+    try {
+      const res = await fetch(`https://dummyjson.com/recipes/search?q=${searchQuery}`)
+      const data = await res.json()
+      setRecipes(data.recipes)
+      // console.log(data.recipes )
+    } catch (error) {
+      console.log(error.message)
+    }finally{
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchRecipes("chicken")
+  },[])
+
   return (
     <div className='bg-[#faf9fb] p-10 flex-1'>
        <div className='max-w-screen-lg mx-auto'>
@@ -21,25 +48,13 @@ function HomePage() {
         </p>
         <div className='grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3' >
           {/* 1st recipe */}
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-          <RecipeCard/>
-
-        
+           {!loading  && recipes.map((recipe, index) => (
+            <RecipeCard key={`${recipe.id}-${index}`} recipe={recipe} {...getRandomColor()} />
+           )) } 
+           {loading && [...Array(9)] .map((_, index) => <Skelatons key={index} />)}
         </div>
        </div>
     </div>
-   
   )
 }
 
